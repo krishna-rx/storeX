@@ -29,8 +29,7 @@ func ResponseError(w http.ResponseWriter, statusCode int, messageToUser string) 
 		logrus.Errorf("failed to send the error %+v", err)
 	}
 }
-func GenerateJWT(req models.UserRegisterRequest) (string, error) {
-
+func GenerateJWT(req models.UserLoginRequest) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": req.ID,
 		"exp":     time.Now().Add(time.Hour * 24 * 7).Unix(),
@@ -63,6 +62,11 @@ func WriteJSONResponse(w http.ResponseWriter, data interface{}) error {
 	if err != nil {
 		return fmt.Errorf("failed to encode JSON response: %w", err)
 	}
-
 	return nil
+}
+func validField(text string) bool {
+	if text == "" {
+		return false
+	}
+	return true
 }

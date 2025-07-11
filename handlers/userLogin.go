@@ -26,17 +26,16 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	exist, existErr := dbHelper.IsUserExist(loginReq.Email)
 	if existErr != nil {
-		utils.ResponseError(w, http.StatusBadRequest, "user does not exist")
+		utils.ResponseError(w, http.StatusBadRequest, "getting error in lookup user")
 		return
 	}
 	if exist {
-		registerReq.Email = loginReq.Email
-		err = dbHelper.LookUpUserRole(&registerReq)
+		err = dbHelper.LookUpUserRole(&loginReq)
 		if err != nil {
 			utils.ResponseError(w, http.StatusInternalServerError, "failed to look up user role")
 			return
 		}
-		tokenString, err := utils.GenerateJWT(registerReq)
+		tokenString, err := utils.GenerateJWT(loginReq)
 		if err != nil {
 			utils.ResponseError(w, http.StatusBadRequest, "failed to generate JWT token")
 			return
@@ -75,5 +74,35 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 			utils.ResponseError(w, http.StatusBadRequest, "failed to encode the json response")
 			return
 		}
+	}
+}
+func UserRegister(w http.ResponseWriter, r *http.Request) {
+	var registerReq models.UserRegisterRequest
+	err := utils.ParseJSONBody(r, &registerReq)
+	if err != nil {
+		utils.ResponseError(w, http.StatusBadRequest, "failed to parsed request query")
+		return
+	}
+	registerReq.Role = "employee"
+	txErr := database.Tx(func(tx *sqlx.Tx) error {
+		// create user
+		userID, err := dbHelper.CreateUser(tx, registerReq)
+		if err != nil {
+			return err
+		}
+		// create  user role
+		err = dbHelper.CreateUserRole(tx, userID, registerReq.Role)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if txErr != nil {
+		utils.ResponseError(w, http.StatusInternalServerError, "failed to create user")
+		return
+	}
+	err = utils.WriteJSONResponse(w, "user created successfully")
+	if err != nil {
+		utils.ResponseError(w, http.StatusBadRequest, "failed to encode the json response")
 	}
 }
