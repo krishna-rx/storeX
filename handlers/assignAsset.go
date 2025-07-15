@@ -22,10 +22,16 @@ func AssignAsset(w http.ResponseWriter, r *http.Request) {
 	}
 	if assignAsset.AssignTo == userID {
 		utils.ResponseError(w, http.StatusUnauthorized, "you can't assign asset to yourself")
+		return
 	}
-	err = dbHelper.AssestInsert(userID, assignAsset)
+	err = dbHelper.AssetAssignInsert(userID, assignAsset)
 	if err != nil {
 		utils.ResponseError(w, http.StatusInternalServerError, "failed to insert into asset assignment table")
+		return
+	}
+	err = dbHelper.UpdateAssignStatus(assignAsset.AssetID)
+	if err != nil {
+		utils.ResponseError(w, http.StatusInternalServerError, "failed to update the assigned status in the asset table")
 		return
 	}
 	err = utils.WriteJSONResponse(w, "assigned asset successfully")

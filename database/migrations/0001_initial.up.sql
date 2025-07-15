@@ -106,5 +106,4 @@ CREATE TABLE IF NOT EXISTS mobiles (
     updated_at TIMESTAMPTZ,
     archived_at TIMESTAMPTZ
 );
-
 COMMIT;
