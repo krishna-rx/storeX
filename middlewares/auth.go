@@ -43,6 +43,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		rawRole, roleExist := claims["role"]
 		if !exists || !roleExist {
 			utils.ResponseError(w, http.StatusUnauthorized, "failed to get roles and userID from jwt token")
+			return
 		}
 
 		if rawRole == nil || rawUserID == nil {
@@ -57,7 +58,27 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 		ctx := context.WithValue(r.Context(), "user_id", userID)
-		ctx = context.WithValue(ctx, "roles", role)
+		ctx = context.WithValue(ctx, "role", role)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func RequireRole(requiredRoles ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			rawRole := r.Context().Value("role")
+			role, ok := rawRole.(string)
+			if !ok {
+				utils.ResponseError(w, http.StatusUnauthorized, "role claim is not a string")
+				return
+			}
+			for _, requiredRole := range requiredRoles {
+				if role == requiredRole {
+					next.ServeHTTP(w, r)
+					return
+				}
+			}
+			http.Error(w, "unauthorized user", http.StatusForbidden)
+		})
+	}
 }

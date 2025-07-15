@@ -51,12 +51,13 @@ CREATE TABLE IF NOT EXISTS laptops (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     assets_id UUID REFERENCES assets(id) NOT NULL,
     name TEXT NOT NULL,
-    IEMI_no_1 TEXT NOT NULL,
-    IEMI_no_2 TEXT NOT NULL,
-    price TEXT NOT NULL,
-    ram INTEGER NOT NULL,
+    IMEI_no_1 TEXT NOT NULL,
+    IMEI_no_2 TEXT NOT NULL,
+    price  NUMERIC(10,2) NULL,
+    ram TEXT NOT NULL,
     os TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by UUID,
     updated_at TIMESTAMPTZ,
     archived_at TIMESTAMPTZ
 );
@@ -65,10 +66,12 @@ CREATE TABLE IF NOT EXISTS mouses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     assets_id UUID REFERENCES assets(id) NOT NULL,
     name TEXT NOT NULL,
-    IEMI_no_1 TEXT NOT NULL,
-    IEMI_no_2 TEXT NOT NULL,
-    price TEXT NOT NULL,
+    IMEI_no_1 TEXT NOT NULL,
+    IMEI_no_2 TEXT NOT NULL,
+    buttons INTEGER NOT NULL,
+    price NUMERIC(10,2) NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by UUID,
     updated_at TIMESTAMPTZ,
     archived_at TIMESTAMPTZ
 );
@@ -77,13 +80,14 @@ CREATE TABLE IF NOT EXISTS keyboards (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     assets_id UUID REFERENCES assets(id) NOT NULL,
     name TEXT NOT NULL,
-    IEMI_no_1 TEXT NOT NULL,
-    IEMI_no_2 TEXT NOT NULL,
+    IMEI_no_1 TEXT NOT NULL,
+    IMEI_no_2 TEXT NOT NULL,
     type TEXT NOT NULL,
-    price TEXT NOT NULL,
+    price NUMERIC(10,2) NOT NULL,
     is_wired BOOLEAN NOT NULL,
     keys TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by UUID,
     updated_at TIMESTAMPTZ,
     archived_at TIMESTAMPTZ
 );
@@ -92,15 +96,14 @@ CREATE TABLE IF NOT EXISTS mobiles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     assets_id UUID REFERENCES assets(id) NOT NULL,
     name TEXT NOT NULL,
-    IEMI_no_1 TEXT NOT NULL,
-    IEMI_no_2 TEXT NOT NULL,
-    price TEXT NOT NULL,
+    IMEI_no_1 TEXT NOT NULL,
+    IMEI_no_2 TEXT NOT NULL,
+    price NUMERIC(10,2) NOT NULL,
     ram INTEGER NOT NULL,
     os TEXT NOT NULL,
-    type TEXT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
+    created_by UUID,
     updated_at TIMESTAMPTZ,
     archived_at TIMESTAMPTZ
 );
-
 COMMIT;
